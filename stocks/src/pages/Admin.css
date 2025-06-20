@@ -1,0 +1,42 @@
+.admin-container {
+  max-width: 600px;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 14px 0 rgba(30, 34, 45, 0.08);
+  padding: 32px 28px 26px 28px;
+  margin-top: 36px;
+  margin-bottom: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.admin-title {
+  font-size: 1.7em;
+  color: #213044;
+  font-weight: 700;
+  margin-bottom: 28px;
+  letter-spacing: 0.7px;
+}
+
+.admin-selector {
+  margin-bottom: 28px;
+  font-size: 1.1em;
+}
+
+.admin-selector select {
+  margin-left: 12px;
+  padding: 4px 10px;
+  border-radius: 5px;
+  border: 1px solid #aac2e2;
+  background: #f4f7fa;
+  font-size: 1em;
+}
+
+@media (max-width: 700px) {
+  .admin-container {
+    max-width: 95vw;
+    padding: 20px 5vw 18px 5vw;
+  }
+}
