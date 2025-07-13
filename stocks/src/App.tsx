@@ -35,7 +35,7 @@ function saveStocks(stocks: Stock[]) {
   localStorage.setItem("stocks", JSON.stringify(stocks));
 }
 
-// 5 minutes in ms
+// 1 minutes in ms
 const UPDATE_INTERVAL_MS = 1 * 60 * 1000;
 
 const App: React.FC = () => {

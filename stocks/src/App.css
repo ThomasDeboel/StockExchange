@@ -1,55 +1,115 @@
+/* Mobile-first, modern app styling */
+
 .app-container {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   font-family: "Segoe UI", "Roboto", Arial, sans-serif;
-  background: #f4f7fa;
+  background: #f7f8fa;
 }
 
+/* Navbar */
 .navbar {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  align-items: stretch;
   background: #19202a;
   color: #fff;
-  padding: 0 32px;
-  height: 64px;
+  padding: 0.5rem 1rem;
+  height: auto;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .navbar-logo {
-  font-size: 1.4em;
+  font-size: 1.25em;
   font-weight: bold;
   letter-spacing: 1.5px;
   display: flex;
   align-items: center;
+  margin-bottom: 0.4em;
+  justify-content: center;
+}
+
+.navbar-links {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 1.2em;
 }
 
 .navbar-links a {
   color: #fff;
-  margin-left: 28px;
   text-decoration: none;
   font-weight: 500;
   transition: color 0.18s;
+  padding: 0.5em 0.7em;
+  border-radius: 2em;
 }
+
 .navbar-links a:hover,
 .navbar-links a.active {
   color: #3ecf8e;
+  background: rgba(62, 207, 142, 0.13);
 }
 
+/* Main Content */
 .main-content {
   flex: 1;
-  padding: 36px 0 24px 0;
-  max-width: 1200px;
-  margin: 0 auto;
+  padding: 1.5rem 0.5rem 1.2rem 0.5rem;
+  max-width: 600px;
   width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem; /* vertical spacing between graphs or sections */
 }
 
+/* Graphs stacking */
+.graph-container,
+.charts-wrapper,
+.graph, /* add your actual graph container class names here */
+.chart {
+  width: 100%;
+  margin: 0 auto;
+  display: block;
+}
+
+/* Footer */
 .footer {
   text-align: center;
   background: #212b36;
   color: #c6d3e1;
-  padding: 16px 0;
-  font-size: 0.95em;
+  padding: 1.1rem 0;
+  font-size: 0.97em;
   letter-spacing: 0.5px;
+  border-radius: 1.5em 1.5em 0 0;
+}
+
+/* Responsive Enhancements */
+@media (min-width: 600px) {
+  .navbar {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 2.5rem;
+    height: 64px;
+  }
+  .navbar-logo {
+    margin-bottom: 0;
+    font-size: 1.4em;
+    justify-content: flex-start;
+  }
+  .navbar-links {
+    justify-content: flex-end;
+    gap: 1.7em;
+  }
+  .main-content {
+    max-width: 1200px;
+    padding: 2.2rem 0 1.5rem 0;
+  }
+  .footer {
+    padding: 1.2rem 0;
+    border-radius: 0;
+  }
 }

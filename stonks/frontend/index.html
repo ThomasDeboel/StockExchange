@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Stonk Tracker</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      body {
+        font-family: sans-serif;
+        background: #f9f9f9;
+        padding: 20px;
+      }
+      .chart-container {
+        max-width: 800px;
+        margin: 0 auto 50px;
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+      h2 {
+        text-align: center;
+        margin-bottom: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="charts"></div>
+
+    <script>
+      const stonks = [
+        "STONK1",
+        "STONK2",
+        "STONK3",
+        "STONK4",
+        "STONK5",
+        "STONK6",
+        "STONK7",
+        "STONK8",
+        "STONK9",
+      ];
+      const charts = {};
+
+      function createCanvas(id, label) {
+        const container = document.createElement("div");
+        container.className = "chart-container";
+
+        const title = document.createElement("h2");
+        title.textContent = label;
+        container.appendChild(title);
+
+        const canvas = document.createElement("canvas");
+        canvas.id = id;
+        container.appendChild(canvas);
+
+        document.getElementById("charts").appendChild(container);
+      }
+
+      // Add controls for time range selection
+      const timeRanges = [
+        { label: "2 Hours", value: 2 * 60 * 60 * 1000 },
+        { label: "12 Hours", value: 12 * 60 * 60 * 1000 },
+        { label: "1 Day", value: 24 * 60 * 60 * 1000 },
+        { label: "2 Days", value: 2 * 24 * 60 * 60 * 1000 },
+      ];
+      let selectedRange = timeRanges[2].value; // Default: 1 Day
+
+      function createTimeRangeControls() {
+        const controls = document.createElement("div");
+        controls.style.textAlign = "center";
+        controls.style.marginBottom = "20px";
+        timeRanges.forEach((range) => {
+          const btn = document.createElement("button");
+          btn.textContent = range.label;
+          btn.style.margin = "0 8px";
+          btn.onclick = () => {
+            selectedRange = range.value;
+            fetchData();
+            // Highlight selected
+            Array.from(controls.children).forEach((b) =>
+              b.classList.remove("selected")
+            );
+            btn.classList.add("selected");
+          };
+          if (range.value === selectedRange) btn.classList.add("selected");
+          controls.appendChild(btn);
+        });
+        document.body.insertBefore(controls, document.getElementById("charts"));
+      }
+      createTimeRangeControls();
+
+      function filterDataByRange(timestamps, prices) {
+        if (!timestamps || !prices || !timestamps.length)
+          return { timestamps, prices };
+        const now = Date.now();
+        // Try to parse timestamps as ms, fallback to Date.parse
+        const parseTs = (ts) => (typeof ts === "number" ? ts : Date.parse(ts));
+        const filtered = [];
+        for (let i = timestamps.length - 1; i >= 0; i--) {
+          const ts = parseTs(timestamps[i]);
+          if (now - ts <= selectedRange) {
+            filtered.push(i);
+          } else {
+            break;
+          }
+        }
+        filtered.reverse();
+        return {
+          timestamps: filtered.map((i) => timestamps[i]),
+          prices: filtered.map((i) => prices[i]),
+        };
+      }
+
+      function initCharts(data) {
+        stonks.forEach((stonk) => {
+          const ctx = document.getElementById(stonk).getContext("2d");
+          const { timestamps, prices } = filterDataByRange(
+            data[stonk]?.timestamps || [],
+            data[stonk]?.prices || []
+          );
+          charts[stonk] = new Chart(ctx, {
+            type: "line",
+            data: {
+              labels: timestamps,
+              datasets: [
+                {
+                  label: stonk,
+                  data: prices,
+                  borderColor: "blue",
+                  fill: false,
+                },
+                ...(prices.length
+                  ? [
+                      {
+                        label: "Latest Value",
+                        data: Array(timestamps.length).fill(
+                          prices[prices.length - 1]
+                        ),
+                        borderColor: "red",
+                        borderDash: [8, 4],
+                        pointRadius: 0,
+                        fill: false,
+                        order: 0,
+                      },
+                    ]
+                  : []),
+              ],
+            },
+            options: {
+              responsive: true,
+              animation: false,
+              scales: {
+                x: {
+                  ticks: {
+                    autoSkip: true,
+                    maxTicksLimit: 8,
+                    callback: function (value, index, ticks) {
+                      const label = this.getLabelForValue(value);
+                      return label;
+                    },
+                    maxRotation: 30,
+                    minRotation: 0,
+                  },
+                },
+              },
+            },
+          });
+        });
+      }
+
+      // Override updateCharts to apply filter
+      function updateCharts(data) {
+        stonks.forEach((stonk) => {
+          const chart = charts[stonk];
+          if (!chart || !data[stonk]) return;
+          const { timestamps, prices } = filterDataByRange(
+            data[stonk].timestamps,
+            data[stonk].prices
+          );
+          chart.data.labels = timestamps;
+          chart.data.datasets[0].data = prices;
+          // Update horizontal line
+          if (chart.data.datasets[1]) {
+            chart.data.datasets[1].data = Array(timestamps.length).fill(
+              prices[prices.length - 1]
+            );
+          }
+          chart.update();
+        });
+      }
+
+      function updateCharts(data) {
+        stonks.forEach((stonk) => {
+          const chart = charts[stonk];
+          if (!chart || !data[stonk]) return;
+
+          chart.data.labels = data[stonk].timestamps;
+          chart.data.datasets[0].data = data[stonk].prices;
+          chart.update();
+        });
+      }
+
+      async function fetchData() {
+        const res = await fetch("http://localhost:5000/api/stocks");
+        const data = await res.json();
+
+        if (Object.keys(charts).length === 0) {
+          initCharts(data);
+        } else {
+          updateCharts(data);
+        }
+      }
+
+      // Create canvases for each stonk
+      stonks.forEach((stonk) => createCanvas(stonk, stonk));
+
+      fetchData(); // initial load
+      setInterval(fetchData, 30000); // elke minuut
+    </script>
+    <button
+      id="download-all"
+      style="
+        display: block;
+        margin: 30px auto 0 auto;
+        padding: 12px 24px;
+        font-size: 1.1em;
+      "
+    >
+      Download All Data (CSV)
+    </button>
+    <script>
+      document.getElementById("download-all").onclick = async function () {
+        const res = await fetch("http://localhost:5000/api/stocks");
+        const data = await res.json();
+        let csv = "Stock,Time,Value\n";
+        for (const stock in data) {
+          const { timestamps, prices } = data[stock];
+          for (let i = 0; i < timestamps.length; i++) {
+            csv += `${stock},${timestamps[i]},${prices[i]}\n`;
+          }
+        }
+        const blob = new Blob([csv], { type: "text/csv" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "all_stocks.csv";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      };
+    </script>
+  </body>
+</html>

@@ -1,0 +1,14 @@
+version: "3.8"
+
+services:
+  api:
+    build: ./api
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./api/database.db:/app/database.db
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "8080:80"

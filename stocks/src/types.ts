@@ -3,7 +3,6 @@ export type StockHistoryPoint = {
   value: number; // Stock price
 };
 export type ScheduleChange = {
-  startTime: string; // ISO date string
   endTime: string; // ISO date string
   fromValue: number; // Stock price before change
   toValue: number; // Stock price after change

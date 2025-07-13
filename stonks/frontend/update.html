@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Send Stonk Update</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        background: #f3f3f3;
+        padding: 40px;
+      }
+      form {
+        max-width: 400px;
+        margin: auto;
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+      input,
+      button {
+        width: 100%;
+        padding: 12px;
+        margin-top: 10px;
+        font-size: 16px;
+      }
+      button {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        cursor: pointer;
+      }
+      #response {
+        margin-top: 20px;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <form id="stonkForm">
+      <h2>Manual Stonk Update</h2>
+      <input
+        type="text"
+        id="stock"
+        placeholder="Stock name (e.g. STONK1)"
+        required
+      />
+      <input
+        type="number"
+        id="value"
+        placeholder="Value (e.g. 123.45)"
+        required
+        step="0.01"
+      />
+      <input type="datetime-local" id="timestamp" />
+      <button type="submit">Send Update</button>
+      <div id="response"></div>
+    </form>
+
+    <script>
+      const form = document.getElementById("stonkForm");
+      const responseDiv = document.getElementById("response");
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const stock = document.getElementById("stock").value;
+        const value = document.getElementById("value").value;
+        const timestampInput = document.getElementById("timestamp").value;
+        const timestamp = timestampInput
+          ? new Date(timestampInput).toISOString()
+          : undefined;
+
+        const payload = { stock, value, timestamp };
+
+        try {
+          const res = await fetch("http://localhost:5000/api/update", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+
+          const json = await res.json();
+          responseDiv.textContent = `✅ Success: ${JSON.stringify(json)}`;
+          responseDiv.style.color = "green";
+        } catch (err) {
+          responseDiv.textContent = `❌ Error: ${err}`;
+          responseDiv.style.color = "red";
+        }
+      });
+    </script>
+  </body>
+</html>

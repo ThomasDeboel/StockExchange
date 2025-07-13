@@ -4,13 +4,12 @@ export function getScheduleValue(
   currentTime: Date,
   change: ScheduleChange
 ): number | undefined {
-  const startTime = new Date(change.startTime);
   const endTime = new Date(change.endTime);
-  if (currentTime < startTime || currentTime > endTime) {
+  if (currentTime > endTime) {
     return undefined; // Current time is outside the change period
   }
-  const totalMs = endTime.getTime() - startTime.getTime();
-  const elapsedMs = currentTime.getTime() - startTime.getTime();
+  const totalMs = endTime.getTime() - currentTime.getTime();
+  const elapsedMs = currentTime.getTime() - currentTime.getTime();
   const progress = elapsedMs / totalMs;
   return change.fromValue + (change.toValue - change.fromValue) * progress;
 }
