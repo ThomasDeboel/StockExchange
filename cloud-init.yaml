@@ -1,7 +1,10 @@
 runcmd:
   - apt-get update
-  - apt-get install -y curl
+  - apt-get install -y curl git wget
   - curl -fsSL https://get.docker.com -o get-docker.sh
   - sh get-docker.sh
   - systemctl enable docker
-  -
+  - git clone https://github.com/ThomasDeboel/StockExchange.git
+  - cd StockExchange/stonks
+  - docker compose build
+  - docker compose up -d
