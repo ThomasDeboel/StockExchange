@@ -201,7 +201,7 @@
       }
 
       async function fetchData() {
-        const res = await fetch("http://localhost:5000/api/stocks");
+        const res = await fetch("https://api.redops.be/api/stocks");
         const data = await res.json();
 
         if (Object.keys(charts).length === 0) {
@@ -216,39 +216,6 @@
 
       fetchData(); // initial load
       setInterval(fetchData, 30000); // elke minuut
-    </script>
-    <button
-      id="download-all"
-      style="
-        display: block;
-        margin: 30px auto 0 auto;
-        padding: 12px 24px;
-        font-size: 1.1em;
-      "
-    >
-      Download All Data (CSV)
-    </button>
-    <script>
-      document.getElementById("download-all").onclick = async function () {
-        const res = await fetch("http://localhost:5000/api/stocks");
-        const data = await res.json();
-        let csv = "Stock,Time,Value\n";
-        for (const stock in data) {
-          const { timestamps, prices } = data[stock];
-          for (let i = 0; i < timestamps.length; i++) {
-            csv += `${stock},${timestamps[i]},${prices[i]}\n`;
-          }
-        }
-        const blob = new Blob([csv], { type: "text/csv" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "all_stocks.csv";
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-      };
     </script>
   </body>
 </html>

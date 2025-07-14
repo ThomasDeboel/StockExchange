@@ -1,4 +1,7 @@
-output "vm_public_ip" {
-  value = azurerm_public_ip.td_public_ip.ip_address
-  description = "The public IP address of the VM"
+output "azure_frontend_ip" {
+  value = azurerm_container_group.frontend.ip_address
+  
+}
+output "azure_api_ip" {
+  value = azurerm_container_group.api.ip_address
 }

@@ -5,6 +5,14 @@ terraform {
       source  = "hashicorp/azurerm"
       version = "~> 4.0"
     }
+        docker = {
+      source  = "kreuzwerker/docker"
+      version = "~> 3.0"
+    }
+        cloudflare = {
+      source  = "cloudflare/cloudflare"
+      version = "~> 5"
+    }
   }
 }
 
@@ -19,4 +27,18 @@ provider "azurerm" {
 }
 
 
+# Configure Docker provider
+provider "docker" {
+  host = "unix://${var.docker_sock}"
+
+  registry_auth {
+    address  = azurerm_container_registry.tfcon_registry.login_server
+    username = var.azure_client_id
+    password = var.azure_client_secret
+  }
+}
+
+provider "cloudflare" {
+  api_token = var.cloudflare_api_token
+}
 # dotenvx run -- bash

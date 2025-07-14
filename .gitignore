@@ -127,3 +127,10 @@ dist
 .pnp.*
 __pycache__/
 *.db
+
+# terraform
+.terraform
+.terraform.*
+*.tfstate
+*.tfstate.*
+*.tfvars

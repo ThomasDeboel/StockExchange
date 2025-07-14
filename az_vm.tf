@@ -1,66 +1,47 @@
-resource "azurerm_resource_group" "TD_rg" {
-  name     = "TDResourceGroup"
-  location = "East US"
-}
-
-resource "azurerm_virtual_network" "td_vnet" {
-  name                = "TDVnet"
-  address_space       = ["10.0.0.0/16"]
-  location            = azurerm_resource_group.TD_rg.location
-  resource_group_name = azurerm_resource_group.TD_rg.name
-}
-
-resource "azurerm_subnet" "td_subnet" {
-  name                 = "TDSubnet"
-  resource_group_name  = azurerm_resource_group.TD_rg.name
-  virtual_network_name = azurerm_virtual_network.td_vnet.name
-  address_prefixes     = ["10.0.1.0/24"]
-}
-
-resource "azurerm_network_interface" "td_nic" {
-  name                = "TDNIC"
-  location            = azurerm_resource_group.TD_rg.location
-  resource_group_name = azurerm_resource_group.TD_rg.name
-
-  ip_configuration {
-    name                          = "internal"
-    subnet_id                     = azurerm_subnet.td_subnet.id
-    private_ip_address_allocation = "Dynamic"
-    public_ip_address_id          = azurerm_public_ip.td_public_ip.id
+resource "azurerm_container_group" "api" {
+  name                = "stonks-api"
+  resource_group_name = azurerm_resource_group.main.name
+  location            = azurerm_resource_group.main.location
+  ip_address_type     = "Public"
+  os_type             = "Linux"
+  container {
+    name   = "api"
+    image  = docker_image.TD_api_image.name
+    cpu    = "0.5"
+    memory = "1.0"
+    ports {
+      port     = 80
+      protocol = "TCP"
+    }
   }
-}
-resource "azurerm_public_ip" "td_public_ip" {
-  name                = "TDPublicIP"
-  location            = azurerm_resource_group.TD_rg.location
-  resource_group_name = azurerm_resource_group.TD_rg.name
-  allocation_method   = "Dynamic"
-}
-
-resource "azurerm_linux_virtual_machine" "td_vm" {
-  name                = "TDLinuxVM"
-  resource_group_name = azurerm_resource_group.TD_rg.name
-  location            = azurerm_resource_group.TD_rg.location
-  size                = "Standard_B1s"
-  admin_username      = "azureuser"
-  network_interface_ids = [
-    azurerm_network_interface.td_nic.id,
-  ]
-  custom_data = file("cloud-init.yaml") # Optional: Use cloud-init for initial setup
-
-  admin_password = "P@ssword1234!" # Change this to a secure password or use SSH keys
-
-  os_disk {
-    caching              = "ReadWrite"
-    storage_account_type = "Standard_LRS"
-    name                 = "tdosdisk"
+  image_registry_credential {
+    server   = "tdcontainerregistry.azurecr.io"
+    username = var.azure_client_id
+    password = var.azure_client_secret
   }
+  depends_on = [ docker_registry_image.TD_registry ]
+}
 
-  source_image_reference {
-    publisher = "Canonical"
-    offer     = "0001-com-ubuntu-server-focal"
-    sku       = "20_04-lts"
-    version   = "latest"
+resource "azurerm_container_group" "frontend" {
+  name                = "stonks-frontend"
+  resource_group_name = azurerm_resource_group.main.name
+  location            = azurerm_resource_group.main.location
+  ip_address_type     = "Public"
+  os_type             = "Linux"
+  container {
+    name   = "frontend"
+    image  = docker_image.TD_front_image.name
+    cpu    = "0.5"
+    memory = "1.0"
+    ports {
+      port     = 80
+      protocol = "TCP"
+    }
   }
-
-  disable_password_authentication = false
+  image_registry_credential {
+    server   = "tdcontainerregistry.azurecr.io"
+    username = var.azure_client_id
+    password = var.azure_client_secret
+  }
+  depends_on = [ docker_registry_image.TD_front_registry ]
 }

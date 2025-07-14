@@ -4,7 +4,7 @@ from models import init_db, insert_stock, get_stocks, get_last_value
 import threading, time, random
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 STONK_NAMES = ["STONK1", "STONK2", "STONK3", "STONK4", "STONK5", "STONK6", "STONK7", "STONK8", "STONK9"]
 
@@ -32,4 +32,4 @@ def update():
 if __name__ == "__main__":
     init_db()
     threading.Thread(target=auto_generate, daemon=True).start()
-    app.run(host="0.0.0.0", port=5000)
+    app.run(host="0.0.0.0", port=80)

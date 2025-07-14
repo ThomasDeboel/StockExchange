@@ -5,8 +5,6 @@ services:
     build: ./api
     ports:
       - "5000:5000"
-    volumes:
-      - ./api/database.db:/app/database.db
 
   frontend:
     build: ./frontend
