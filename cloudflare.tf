@@ -16,7 +16,7 @@ resource "cloudflare_dns_record" "api" {
 # A record for api
 resource "cloudflare_dns_record" "frontend" {
     zone_id = data.cloudflare_zones.my_zone.result[0].id
-    name    = "stonks.${data.cloudflare_zones.my_zone.result[0].name}"
+    name    = "stock.${data.cloudflare_zones.my_zone.result[0].name}"
     type    = "A"
     content   = azurerm_container_group.frontend.ip_address
     ttl     = 1
